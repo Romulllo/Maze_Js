@@ -4,6 +4,8 @@ const cells = 3;
 const width = 600;
 const height = 600;
 
+const unitLength = width / cells;
+
 const engine = Engine.create();
 const { world } = engine;
 const render = Render.create({
@@ -29,7 +31,21 @@ World.add(world, walls);
 
 // Maze generation
 
-const shuffle = (arr)
+const shuffle = arr => {
+  let counter = arr.length;
+
+  while (counter > 0) {
+    const index = Math.floor(Math.random() * counter);
+
+    counter--;
+
+    const temp = arr[counter];
+    arr[counter] = arr[index];
+    arr[index] = temp;
+  }
+
+  return arr;
+};
 
 const grid = Array(cells).fill(null).map(() => Array(cells).fill(false));
 
@@ -81,11 +97,50 @@ const stepThroughCell = (row, column) => {
     } else if (direction === 'down') {
       horizontals[row][column] = true;
     }
+    
+    stepThroughCell(nextRow, nextColumn);
   }
-
 
   // visit thar next cell
 
 };
 
 stepThroughCell(startRow, startColumn)
+
+horizontals.forEach((row, rowIndex) => {
+  row.forEach((open, columnIndex) => {
+    if (open) {
+      return;
+    }
+
+    const wall = Bodies.rectangle(
+      columnIndex * unitLength + unitLength / 2,
+      rowIndex * unitLength + unitLength,
+      unitLength,
+      10,
+      {
+        isStatic: true
+      }
+    );
+    World.add(world, wall);
+  });
+});
+
+verticals.forEach((row, rowIndex) => {
+  row.forEach((open, columnIndex) => {
+    if (open) {
+      return;
+    }
+
+    const wall = Bodies.rectangle(
+      columnIndex * unitLength + unitLength,
+      rowIndex * unitLength + unitLength / 2,
+      10,
+      unitLength,
+      {
+        isStatic: true
+      }
+    );
+    World.add(world, wall)
+  });
+});
